@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>PROJECT: GENTLEMEN'S GLITCH</title>
+    <title>PROJECT: GENTLEMEN'S GLITCH | 3D Holographic Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Dancing+Script:wght@700&display=swap');
 
@@ -78,10 +78,10 @@
             z-index: 200; text-align: center; padding-bottom: 50px;
         }
 
-        /* Background Wishes Rain */
+        /* Background Wishes Rain - Cập nhật độ rõ nét */
         #wishes-canvas {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; opacity: 0.4;
+            z-index: 0; opacity: 0.6; /* Tăng opacity tổng thể */
         }
 
         .love-text { font-family: 'Dancing Script', cursive; font-size: 5rem; color: #ff3385; text-shadow: 0 0 30px #ff3385; margin: 0; z-index: 10; pointer-events: none; }
@@ -101,7 +101,7 @@
             UPTIME: 11.05.2009s
         </div>
         <div style="text-align: center; padding-top: 10px;">
-            <div style="font-size: 1.8rem; color: #0f0; letter-spacing: 5px;">11A1 TERMINAL</div>
+            <div style="font-size: 1.8rem; color: #0f0; letter-spacing: 5px;">HOLOGRAPHIC TERMINAL</div>
         </div>
         <div class="panel">
             [RADAR_SCAN]<br>
@@ -208,7 +208,7 @@
             }
         });
 
-        // Background Wishes Rain Logic
+        // Background Wishes Rain Logic - Cập nhật rõ hơn
         function startWishesRain() {
             const canvas = document.getElementById('wishes-canvas');
             const ctx = canvas.getContext('2d');
@@ -218,30 +218,38 @@
             const wishes = [
                 "Luôn rạng rỡ", "Xinh đẹp mãi nhé", "11A1 Mãi Đỉnh", "Mãi Hạnh Phúc", 
                 "Học giỏi nha", "Yêu đời lắm nè", "Luôn mỉm cười", "Tỏa sáng rực rỡ",
-                "Quà đầy tay", "Vui vẻ nha", "Sweet 11A1", "Gentlemen love you"
+                "Quà đầy tay", "Vui vẻ nha", "Sweet 11A1", "Gentlemen love you",
+                "Mãi là hoa hậu", "Hạnh phúc ngập tràn", "Mãi xinh đẹp", "11A1 Number One"
             ];
 
             const wishParticles = [];
-            for(let i = 0; i < 40; i++) {
+            // Tăng số lượng câu chúc lên 60 để nền dày hơn
+            for(let i = 0; i < 60; i++) {
                 wishParticles.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    speed: 0.5 + Math.random() * 1.5,
+                    speed: 0.8 + Math.random() * 2.0, // Tăng tốc độ một chút
                     text: wishes[Math.floor(Math.random() * wishes.length)],
-                    opacity: 0.1 + Math.random() * 0.5,
-                    fontSize: 12 + Math.random() * 14
+                    opacity: 0.3 + Math.random() * 0.6, // Tăng opacity tối thiểu
+                    fontSize: 16 + Math.random() * 20 // Tăng kích thước chữ (từ 16px đến 36px)
                 });
             }
 
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 wishParticles.forEach(p => {
-                    ctx.fillStyle = `rgba(255, 105, 180, ${p.opacity})`;
-                    ctx.font = `bold ${p.fontSize}px 'Fira Code'`;
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = "rgba(255, 105, 180, 0.8)";
+                    ctx.fillStyle = `rgba(255, 182, 193, ${p.opacity})`;
+                    ctx.font = `bold ${p.fontSize}px 'Dancing Script'`; // Dùng font lãng mạn cho nền luôn
                     ctx.fillText(p.text, p.x, p.y);
+                    
+                    // Reset shadow sau khi vẽ để tối ưu hiệu năng
+                    ctx.shadowBlur = 0;
+                    
                     p.y += p.speed;
                     if(p.y > canvas.height) {
-                        p.y = -20;
+                        p.y = -50;
                         p.x = Math.random() * canvas.width;
                     }
                 });
