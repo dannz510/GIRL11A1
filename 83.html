@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>PROJECT: GENTLEMEN'S GLITCH</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Dancing+Script:wght@700&display=swap');
+
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Fira Code', monospace; }
+        #container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        
+        .ui-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 2; pointer-events: none; padding: 25px; box-sizing: border-box;
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            grid-template-rows: 120px 1fr 100px;
+            color: rgba(0, 255, 0, 0.8);
+            text-shadow: 0 0 5px #0f0;
+        }
+
+        .panel {
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            background: rgba(0, 20, 0, 0.5);
+            padding: 10px;
+            margin: 5px;
+            backdrop-filter: blur(2px);
+            font-size: 10px;
+            overflow: hidden;
+        }
+
+        .radar-box {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 1px solid #0f0;
+            margin: 10px auto;
+        }
+        .radar-sweep {
+            position: absolute;
+            width: 50%; height: 50%;
+            top: 0; left: 50%;
+            background: linear-gradient(45deg, rgba(0, 255, 0, 0.4), transparent);
+            transform-origin: bottom left;
+            animation: sweep 3s linear infinite;
+        }
+        @keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        #error-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(40, 0, 0, 0.92); display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+            z-index: 100; animation: glitch-shake 0.1s infinite; pointer-events: all;
+        }
+        @keyframes glitch-shake {
+            0% { transform: translate(2px, 1px); }
+            50% { transform: translate(-2px, -1px) scale(1.02); }
+            100% { transform: translate(1px, -1px); }
+        }
+
+        .error-box {
+            border: 2px solid #f00; background: #000; padding: 40px; text-align: center;
+            box-shadow: 0 0 80px #f00; max-width: 550px;
+        }
+        .error-title { color: #f00; font-size: 2.5rem; font-weight: bold; margin-bottom: 15px; letter-spacing: 8px; }
+
+        #pass-input {
+            background: #000; border: 1px solid #f00; color: #f00; font-size: 1.8rem;
+            padding: 15px; text-align: center; width: 90%; outline: none; margin-top: 15px;
+            font-family: 'Fira Code', monospace; box-shadow: inset 0 0 10px #f00;
+        }
+
+        #love-stage {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #1a000a 0%, #000 100%);
+            display: none; flex-direction: column; align-items: center; justify-content: flex-end;
+            z-index: 200; text-align: center; padding-bottom: 50px;
+        }
+
+        /* Background Wishes Rain */
+        #wishes-canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; opacity: 0.4;
+        }
+
+        .love-text { font-family: 'Dancing Script', cursive; font-size: 5rem; color: #ff3385; text-shadow: 0 0 30px #ff3385; margin: 0; z-index: 10; pointer-events: none; }
+        .slogan { color: #ffb6c1; font-size: 1.3rem; max-width: 800px; line-height: 1.4; margin-top: 10px; padding: 0 20px; z-index: 10; font-weight: bold; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div id="container"></div>
+
+    <div class="ui-overlay" id="ui">
+        <div class="panel">
+            [SYSTEM_INFO]<br>
+            OS: GENTLEMEN_GLITCH v4.3<br>
+            USER: Dannz_Engineer<br>
+            STATUS: MONITORING...<br>
+            UPTIME: 11.05.2009s
+        </div>
+        <div style="text-align: center; padding-top: 10px;">
+            <div style="font-size: 1.8rem; color: #0f0; letter-spacing: 5px;">11A1 TERMINAL</div>
+        </div>
+        <div class="panel">
+            [RADAR_SCAN]<br>
+            <div class="radar-box"><div class="radar-sweep"></div></div>
+            TARGETS: 26 (GIRLS_11A1)
+        </div>
+
+        <div class="panel" style="grid-row: 2/3; height: 100%;">
+            [DATA_STREAM]<br>
+            <div id="code-left" style="font-size: 8px; line-height: 1.1;"></div>
+        </div>
+        <div style="grid-row: 2/3;"></div>
+        <div class="panel" style="grid-row: 2/3; height: 100%;">
+            [REMOTE_ACCESS]<br>
+            <div id="code-right" style="font-size: 8px; line-height: 1.1;"></div>
+        </div>
+
+        <div class="panel" style="grid-column: 1/4;">
+            [TERMINAL_OUTPUT]<br>
+            <div id="terminal-logs" style="font-size: 10px; height: 50px; white-space: pre;"></div>
+        </div>
+    </div>
+
+    <div id="error-overlay">
+        <div class="error-box">
+            <div class="error-title">SYSTEM HALT</div>
+            <div style="color: #fff; font-size: 1.1rem;">
+                CRITICAL: Bộ nhớ quá tải vì nhan sắc của 26 bạn nữ 11A1.<br>
+                Nhập Master Key để khôi phục hệ thống:
+            </div>
+            <input type="text" id="pass-input" placeholder="********" maxlength="15" autocomplete="off" spellcheck="false">
+        </div>
+    </div>
+
+    <div id="love-stage">
+        <canvas id="wishes-canvas"></canvas>
+        <h1 class="love-text">Happy Women's Day!</h1>
+        <p class="slogan">Con trai 11A1 chúng tớ theo lô, sản xuất có thể lỗi, nhưng yêu thương các bạn là tính năng mặc định!</p>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        let scene, camera, renderer, particles;
+        let systemStatus = "NORMAL"; 
+        const logs = document.getElementById('terminal-logs');
+        const codeLeft = document.getElementById('code-left');
+        const codeRight = document.getElementById('code-right');
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('container').appendChild(renderer.domElement);
+
+            const geometry = new THREE.BufferGeometry();
+            const vertices = [];
+            for (let i = 0; i < 7000; i++) {
+                vertices.push(THREE.MathUtils.randFloatSpread(400), THREE.MathUtils.randFloatSpread(400), THREE.MathUtils.randFloatSpread(400));
+            }
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+            const material = new THREE.PointsMaterial({ color: 0x00ff00, size: 0.45, transparent: true, opacity: 0.6 });
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            camera.position.z = 80;
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            particles.rotation.y += 0.002;
+            particles.rotation.z += 0.0015;
+
+            if (systemStatus === "ERROR") {
+                particles.material.color.setHex(0xff0000);
+                particles.rotation.y += 0.08; 
+                particles.position.x = Math.sin(Date.now() * 0.1) * 2;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (systemStatus === "NORMAL") {
+                systemStatus = "ERROR";
+                document.getElementById('error-overlay').style.display = 'flex';
+                document.getElementById('ui').style.filter = "sepia(1) saturate(10) hue-rotate(-50deg)";
+                setTimeout(() => document.getElementById('pass-input').focus(), 100);
+            }
+        });
+
+        const passInput = document.getElementById('pass-input');
+        passInput.addEventListener('input', (e) => {
+            if (e.target.value.toUpperCase() === "LOVEGIRL11A1") {
+                systemStatus = "LOVE";
+                document.getElementById('error-overlay').style.display = 'none';
+                document.getElementById('ui').style.display = 'none';
+                document.getElementById('container').style.display = 'none';
+                document.getElementById('love-stage').style.display = 'flex';
+                init3DHeart();
+                startWishesRain();
+            }
+        });
+
+        // Background Wishes Rain Logic
+        function startWishesRain() {
+            const canvas = document.getElementById('wishes-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const wishes = [
+                "Luôn rạng rỡ", "Xinh đẹp mãi nhé", "11A1 Mãi Đỉnh", "Mãi Hạnh Phúc", 
+                "Học giỏi nha", "Yêu đời lắm nè", "Luôn mỉm cười", "Tỏa sáng rực rỡ",
+                "Quà đầy tay", "Vui vẻ nha", "Sweet 11A1", "Gentlemen love you"
+            ];
+
+            const wishParticles = [];
+            for(let i = 0; i < 40; i++) {
+                wishParticles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    speed: 0.5 + Math.random() * 1.5,
+                    text: wishes[Math.floor(Math.random() * wishes.length)],
+                    opacity: 0.1 + Math.random() * 0.5,
+                    fontSize: 12 + Math.random() * 14
+                });
+            }
+
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                wishParticles.forEach(p => {
+                    ctx.fillStyle = `rgba(255, 105, 180, ${p.opacity})`;
+                    ctx.font = `bold ${p.fontSize}px 'Fira Code'`;
+                    ctx.fillText(p.text, p.x, p.y);
+                    p.y += p.speed;
+                    if(p.y > canvas.height) {
+                        p.y = -20;
+                        p.x = Math.random() * canvas.width;
+                    }
+                });
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+
+        function init3DHeart() {
+            const hScene = new THREE.Scene();
+            const hCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const hRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            hRenderer.setSize(window.innerWidth, window.innerHeight);
+            hRenderer.domElement.style.position = "absolute";
+            hRenderer.domElement.style.top = "0";
+            hRenderer.domElement.style.zIndex = "1";
+            document.getElementById('love-stage').appendChild(hRenderer.domElement);
+
+            const points = [];
+            const count = 80000;
+            for (let i = 0; i < count; i++) {
+                const x = (Math.random() - 0.5) * 3;
+                const y = (Math.random() - 0.5) * 3;
+                const z = (Math.random() - 0.5) * 3;
+                const val = Math.pow(x*x + (2.0)*y*y + z*z - 1, 3) - x*x*Math.pow(z,3) - (0.1)*y*y*Math.pow(z,3);
+                if (val < 0) {
+                    points.push(new THREE.Vector3(x * 16, (z * 16) + 5, -y * 16));
+                }
+            }
+
+            const hGeometry = new THREE.BufferGeometry().setFromPoints(points);
+            const hMaterial = new THREE.PointsMaterial({
+                color: 0xff4d94,
+                size: 0.12,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                opacity: 0.65
+            });
+
+            const heart = new THREE.Points(hGeometry, hMaterial);
+            hScene.add(heart);
+            
+            const glowMaterial = new THREE.PointsMaterial({
+                color: 0xff0066,
+                size: 0.35,
+                transparent: true,
+                blending: THREE.AdditiveBlending,
+                opacity: 0.12
+            });
+            const glowHeart = new THREE.Points(hGeometry, glowMaterial);
+            hScene.add(glowHeart);
+
+            hCamera.position.z = 45;
+
+            function hAnimate() {
+                requestAnimationFrame(hAnimate);
+                heart.rotation.y += 0.008;
+                glowHeart.rotation.y += 0.008;
+                
+                const time = Date.now() * 0.006;
+                const pulse = 1.0 + Math.pow(Math.sin(time), 2) * 0.1;
+                heart.scale.set(pulse, pulse, pulse);
+                glowHeart.scale.set(pulse * 1.02, pulse * 1.02, pulse * 1.02);
+                
+                hRenderer.render(hScene, hCamera);
+            }
+            hAnimate();
+        }
+
+        function updateCodes() {
+            if(systemStatus !== "NORMAL") return;
+            const snippets = [
+                "void main() { gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0); }",
+                "const heart = new NeuralNetwork({ layers: [26, 11, 1] });",
+                "System.Reflect.Assembly.Load('Gentlemen_11A1.dll');",
+                "ffmpeg -i intro.mp4 -vf 'glitch=power=10' final.mp4",
+                "curl -X POST 'https://api.love.v1/11a1/girls'",
+                "SELECT * FROM world_girls WHERE class='11A1' ORDER BY beauty;",
+                "while(true) { spread_love(); if(girl.smile) break; }",
+                "docker-compose up --build --force-recreate",
+                "npm install emotion-engine --save-dev"
+            ];
+            
+            codeLeft.innerText += snippets[Math.floor(Math.random()*snippets.length)] + "\n";
+            codeRight.innerText += snippets[Math.floor(Math.random()*snippets.length)] + "\n";
+            
+            if(codeLeft.innerText.split("\n").length > 30) codeLeft.innerText = codeLeft.innerText.split("\n").slice(5).join("\n");
+            if(codeRight.innerText.split("\n").length > 30) codeRight.innerText = codeRight.innerText.split("\n").slice(5).join("\n");
+        }
+
+        setInterval(updateCodes, 100);
+
+        init();
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
