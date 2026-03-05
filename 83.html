@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>PROJECT: GENTLEMEN'S GLITCH</title>
+    <title>PROJECT: GENTLEMEN'S GLITCH | 3D Holographic Edition</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Dancing+Script:wght@700&display=swap');
 
@@ -78,10 +78,9 @@
             z-index: 200; text-align: center; padding-bottom: 50px;
         }
 
-        /* Background Wishes Rain - Cập nhật độ rõ nét */
         #wishes-canvas {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: 0; opacity: 0.6; /* Tăng opacity tổng thể */
+            z-index: 0; opacity: 0.8;
         }
 
         .love-text { font-family: 'Dancing Script', cursive; font-size: 5rem; color: #ff3385; text-shadow: 0 0 30px #ff3385; margin: 0; z-index: 10; pointer-events: none; }
@@ -95,13 +94,13 @@
     <div class="ui-overlay" id="ui">
         <div class="panel">
             [SYSTEM_INFO]<br>
-            OS: GENTLEMEN_GLITCH v4.3<br>
+            OS: GENTLEMEN_GLITCH v5.0<br>
             USER: Dannz_Engineer<br>
             STATUS: MONITORING...<br>
             UPTIME: 11.05.2009s
         </div>
         <div style="text-align: center; padding-top: 10px;">
-            <div style="font-size: 1.8rem; color: #0f0; letter-spacing: 5px;">11A1 TERMINAL</div>
+            <div style="font-size: 1.8rem; color: #0f0; letter-spacing: 5px;">HOLOGRAPHIC TERMINAL</div>
         </div>
         <div class="panel">
             [RADAR_SCAN]<br>
@@ -147,9 +146,8 @@
     <script>
         let scene, camera, renderer, particles;
         let systemStatus = "NORMAL"; 
-        const logs = document.getElementById('terminal-logs');
-        const codeLeft = document.getElementById('code-left');
-        const codeRight = document.getElementById('code-right');
+        let mouseX = 0, mouseY = 0;
+        let heartGroup; // Chứa trái tim để xoay theo chuột
 
         function init() {
             scene = new THREE.Scene();
@@ -167,7 +165,6 @@
             const material = new THREE.PointsMaterial({ color: 0x00ff00, size: 0.45, transparent: true, opacity: 0.6 });
             particles = new THREE.Points(geometry, material);
             scene.add(particles);
-
             camera.position.z = 80;
             animate();
         }
@@ -175,18 +172,15 @@
         function animate() {
             requestAnimationFrame(animate);
             particles.rotation.y += 0.002;
-            particles.rotation.z += 0.0015;
-
             if (systemStatus === "ERROR") {
                 particles.material.color.setHex(0xff0000);
                 particles.rotation.y += 0.08; 
                 particles.position.x = Math.sin(Date.now() * 0.1) * 2;
             }
-
             renderer.render(scene, camera);
         }
 
-        window.addEventListener('keydown', (e) => {
+        window.addEventListener('keydown', () => {
             if (systemStatus === "NORMAL") {
                 systemStatus = "ERROR";
                 document.getElementById('error-overlay').style.display = 'flex';
@@ -195,8 +189,7 @@
             }
         });
 
-        const passInput = document.getElementById('pass-input');
-        passInput.addEventListener('input', (e) => {
+        document.getElementById('pass-input').addEventListener('input', (e) => {
             if (e.target.value.toUpperCase() === "LOVEGIRL11A1") {
                 systemStatus = "LOVE";
                 document.getElementById('error-overlay').style.display = 'none';
@@ -208,50 +201,34 @@
             }
         });
 
-        // Background Wishes Rain Logic - Cập nhật rõ hơn
+        // Background Wishes Rain
         function startWishesRain() {
             const canvas = document.getElementById('wishes-canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
 
-            const wishes = [
-                "Luôn rạng rỡ", "Xinh đẹp mãi nhé", "11A1 Mãi Đỉnh", "Mãi Hạnh Phúc", 
-                "Học giỏi nha", "Yêu đời lắm nè", "Luôn mỉm cười", "Tỏa sáng rực rỡ",
-                "Quà đầy tay", "Vui vẻ nha", "Sweet 11A1", "Gentlemen love you",
-                "Mãi là hoa hậu", "Hạnh phúc ngập tràn", "Mãi xinh đẹp", "11A1 Number One"
-            ];
-
+            const wishes = ["Luôn rạng rỡ", "Xinh đẹp mãi nhé", "11A1 Mãi Đỉnh", "Mãi Hạnh Phúc", "♥", "✿", "★", "Chúc mừng 8/3"];
             const wishParticles = [];
-            // Tăng số lượng câu chúc lên 60 để nền dày hơn
-            for(let i = 0; i < 60; i++) {
+            for(let i = 0; i < 150; i++) {
                 wishParticles.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    speed: 0.8 + Math.random() * 2.0, // Tăng tốc độ một chút
+                    speed: 0.5 + Math.random() * 2,
                     text: wishes[Math.floor(Math.random() * wishes.length)],
-                    opacity: 0.3 + Math.random() * 0.6, // Tăng opacity tối thiểu
-                    fontSize: 16 + Math.random() * 20 // Tăng kích thước chữ (từ 16px đến 36px)
+                    opacity: 0.2 + Math.random() * 0.5,
+                    fontSize: 12 + Math.random() * 20
                 });
             }
 
             function draw() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 wishParticles.forEach(p => {
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = "rgba(255, 105, 180, 0.8)";
-                    ctx.fillStyle = `rgba(255, 182, 193, ${p.opacity})`;
-                    ctx.font = `bold ${p.fontSize}px 'Dancing Script'`; // Dùng font lãng mạn cho nền luôn
+                    ctx.fillStyle = `rgba(255, 192, 203, ${p.opacity})`;
+                    ctx.font = `bold ${p.fontSize}px 'Dancing Script'`;
                     ctx.fillText(p.text, p.x, p.y);
-                    
-                    // Reset shadow sau khi vẽ để tối ưu hiệu năng
-                    ctx.shadowBlur = 0;
-                    
                     p.y += p.speed;
-                    if(p.y > canvas.height) {
-                        p.y = -50;
-                        p.x = Math.random() * canvas.width;
-                    }
+                    if(p.y > canvas.height + 50) p.y = -50;
                 });
                 requestAnimationFrame(draw);
             }
@@ -268,51 +245,65 @@
             hRenderer.domElement.style.zIndex = "1";
             document.getElementById('love-stage').appendChild(hRenderer.domElement);
 
+            heartGroup = new THREE.Group();
+            hScene.add(heartGroup);
+
             const points = [];
-            const count = 80000;
+            const count = 120000; // Tăng mật độ hạt để nhìn rõ hơn
             for (let i = 0; i < count; i++) {
                 const x = (Math.random() - 0.5) * 3;
                 const y = (Math.random() - 0.5) * 3;
                 const z = (Math.random() - 0.5) * 3;
+                // Công thức trái tim 3D chuẩn xác
                 const val = Math.pow(x*x + (2.0)*y*y + z*z - 1, 3) - x*x*Math.pow(z,3) - (0.1)*y*y*Math.pow(z,3);
                 if (val < 0) {
-                    points.push(new THREE.Vector3(x * 16, (z * 16) + 5, -y * 16));
+                    // Đảo trục để hướng chính diện về camera ngay từ đầu
+                    points.push(new THREE.Vector3(x * 16, (z * 16) + 4, -y * 16));
                 }
             }
 
             const hGeometry = new THREE.BufferGeometry().setFromPoints(points);
             const hMaterial = new THREE.PointsMaterial({
-                color: 0xff4d94,
-                size: 0.12,
+                color: 0xff3385,
+                size: 0.13, // Hạt lớn hơn chút cho rõ nét
                 transparent: true,
                 blending: THREE.AdditiveBlending,
-                opacity: 0.65
+                opacity: 0.8
             });
 
             const heart = new THREE.Points(hGeometry, hMaterial);
-            hScene.add(heart);
+            heartGroup.add(heart);
             
+            // Lớp hào quang (glow)
             const glowMaterial = new THREE.PointsMaterial({
                 color: 0xff0066,
-                size: 0.35,
+                size: 0.4,
                 transparent: true,
                 blending: THREE.AdditiveBlending,
-                opacity: 0.12
+                opacity: 0.2
             });
             const glowHeart = new THREE.Points(hGeometry, glowMaterial);
-            hScene.add(glowHeart);
+            heartGroup.add(glowHeart);
 
             hCamera.position.z = 45;
 
+            // Xử lý di chuyển chuột để xoay trái tim thủ công
+            window.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX - window.innerWidth / 2) / 1000;
+                mouseY = (e.clientY - window.innerHeight / 2) / 1000;
+            });
+
             function hAnimate() {
                 requestAnimationFrame(hAnimate);
-                heart.rotation.y += 0.008;
-                glowHeart.rotation.y += 0.008;
                 
-                const time = Date.now() * 0.006;
-                const pulse = 1.0 + Math.pow(Math.sin(time), 2) * 0.1;
-                heart.scale.set(pulse, pulse, pulse);
-                glowHeart.scale.set(pulse * 1.02, pulse * 1.02, pulse * 1.02);
+                // Trái tim không tự xoay tròn nữa, chỉ nghiêng nhẹ theo chuột
+                heartGroup.rotation.y += (mouseX - heartGroup.rotation.y) * 0.05;
+                heartGroup.rotation.x += (mouseY - heartGroup.rotation.x) * 0.05;
+
+                // Hiệu ứng đập (Pulse) mạnh mẽ và rõ ràng
+                const time = Date.now() * 0.008;
+                const pulse = 1.0 + Math.pow(Math.sin(time), 4) * 0.15; // Dùng lũy thừa 4 để nhịp đập dứt khoát hơn
+                heartGroup.scale.set(pulse, pulse, pulse);
                 
                 hRenderer.render(hScene, hCamera);
             }
@@ -323,25 +314,18 @@
             if(systemStatus !== "NORMAL") return;
             const snippets = [
                 "void main() { gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0); }",
-                "const heart = new NeuralNetwork({ layers: [26, 11, 1] });",
                 "System.Reflect.Assembly.Load('Gentlemen_11A1.dll');",
-                "ffmpeg -i intro.mp4 -vf 'glitch=power=10' final.mp4",
-                "curl -X POST 'https://api.love.v1/11a1/girls'",
                 "SELECT * FROM world_girls WHERE class='11A1' ORDER BY beauty;",
-                "while(true) { spread_love(); if(girl.smile) break; }",
-                "docker-compose up --build --force-recreate",
-                "npm install emotion-engine --save-dev"
+                "while(true) { spread_love(); if(girl.smile) break; }"
             ];
-            
-            codeLeft.innerText += snippets[Math.floor(Math.random()*snippets.length)] + "\n";
-            codeRight.innerText += snippets[Math.floor(Math.random()*snippets.length)] + "\n";
-            
-            if(codeLeft.innerText.split("\n").length > 30) codeLeft.innerText = codeLeft.innerText.split("\n").slice(5).join("\n");
-            if(codeRight.innerText.split("\n").length > 30) codeRight.innerText = codeRight.innerText.split("\n").slice(5).join("\n");
+            document.getElementById('code-left').innerText += snippets[Math.floor(Math.random()*snippets.length)] + "\n";
+            document.getElementById('code-right').innerText += snippets[Math.floor(Math.random()*snippets.length)] + "\n";
+            if(document.getElementById('code-left').innerText.split("\n").length > 25) {
+                document.getElementById('code-left').innerText = document.getElementById('code-left').innerText.split("\n").slice(5).join("\n");
+                document.getElementById('code-right').innerText = document.getElementById('code-right').innerText.split("\n").slice(5).join("\n");
+            }
         }
-
-        setInterval(updateCodes, 100);
-
+        setInterval(updateCodes, 120);
         init();
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;

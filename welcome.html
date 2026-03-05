@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11A1 | Sweet 3D Surprise</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600&family=Pacifico&display=swap');
+
+        :root {
+            --primary-pink: #ffafbd;
+            --secondary-pink: #ffc3a0;
+            --deep-pink: #ff4b91;
+            --soft-white: #fff5f7;
+            --gold: #ffd700;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: radial-gradient(circle, #fff5f7 0%, #ffafbd 100%);
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        /* Door System */
+        .door-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2000;
+            display: flex;
+            transition: 1.5s cubic-bezier(0.7, 0, 0.3, 1);
+        }
+
+        .door {
+            flex: 1;
+            height: 100%;
+            background: linear-gradient(135deg, #ff4b91 0%, #ff85a1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: 1.5s;
+            box-shadow: 0 0 50px rgba(0,0,0,0.3);
+        }
+
+        .door-left { border-right: 2px solid rgba(255,255,255,0.3); }
+        .door-right { border-left: 2px solid rgba(255,255,255,0.3); }
+
+        .handle {
+            width: 60px;
+            height: 60px;
+            background: var(--gold);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.5);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            z-index: 2001;
+        }
+
+        .handle-left { right: -30px; }
+        .handle-right { left: -30px; }
+
+        .door-container.open .door-left { transform: translateX(-100%); }
+        .door-container.open .door-right { transform: translateX(100%); }
+        .door-container.open { pointer-events: none; visibility: hidden; }
+
+        .door-text {
+            color: white;
+            font-family: 'Pacifico', cursive;
+            font-size: 3rem;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+            text-transform: uppercase; /* Đảm bảo 11A1 không bị lỗi font chữ a thường */
+        }
+
+        /* Main Content Container */
+        #main-stage {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            perspective: 2000px;
+        }
+
+        /* 3D Card Flip Effect */
+        .card-wrapper {
+            width: 90%;
+            max-width: 600px;
+            height: 450px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .card-wrapper.is-flipped {
+            transform: rotateY(-180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 35px rgba(255, 75, 145, 0.2);
+            border: 8px solid #fff;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #fff 0%, #fff5f7 100%);
+        }
+
+        .card-back {
+            background: #fff;
+            transform: rotateY(180deg);
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .heart-3d {
+            font-size: 100px;
+            color: var(--deep-pink);
+            animation: pulse 1.5s infinite;
+            filter: drop-shadow(0 0 10px rgba(255, 75, 145, 0.5));
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .card-instruction {
+            margin-top: 20px;
+            color: var(--deep-pink);
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .wish-title {
+            font-family: 'Pacifico', cursive;
+            color: var(--deep-pink);
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+        }
+
+        .wish-text {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #444;
+            font-weight: 500;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signature {
+            margin-top: 20px;
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.8rem;
+            color: var(--deep-pink);
+        }
+
+        /* Particle System */
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Door System -->
+    <div class="door-container" id="doorContainer">
+        <div class="door door-left">
+            <div class="door-text">HAPPY</div>
+            <div class="handle handle-left" onclick="openDoors()">🌸</div>
+        </div>
+        <div class="door door-right">
+            <div class="door-text">11A1</div>
+            <div class="handle handle-right" onclick="openDoors()">🌸</div>
+        </div>
+    </div>
+
+    <!-- Main stage with 3D Card -->
+    <div id="main-stage">
+        <div class="card-wrapper" id="card" onclick="flipCard()">
+            <!-- Front face -->
+            <div class="card-face card-front">
+                <div class="heart-3d">❤️</div>
+                <h2 style="font-family: 'Pacifico'; color: #ff4b91; margin-top: 20px; text-transform: uppercase;">11A1 GENTLEMEN</h2>
+                <p class="card-instruction">(Chạm vào thiệp để xem điều bất ngờ)</p>
+            </div>
+            
+            <!-- Back face -->
+            <div class="card-face card-back">
+                <h1 class="wish-title" id="wishTitle">Thân gửi bạn!</h1>
+                <p class="wish-text" id="wishContent">
+                    Đang tải lời chúc...
+                </p>
+                <div class="signature">With love from 11A1 Boys</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const wishes = [
+            "Chúc bạn luôn rạng rỡ như ánh mặt trời ban mai, xinh đẹp và tự tin trong từng bước đi của mình!",
+            "Mong rằng mỗi ngày của bạn đều tràn ngập niềm vui, tiếng cười và sự dịu dàng như gió xuân.",
+            "Chúc bạn luôn giữ vững được sự kiên cường và đam mê, sớm đạt được những ước mơ đã ấp ủ.",
+            "Bạn là một phần tuyệt vời tạo nên màu sắc rực rỡ của lớp 11A1. Chúc bạn luôn hạnh phúc nhé!",
+            "Hãy luôn tin vào bản thân mình, vì bạn thực sự đặc biệt và sở hữu những tài năng tuyệt vời.",
+            "Chúc bạn mãi luôn hồn nhiên, yêu đời và gặp thật nhiều may mắn trong những chặng đường sắp tới.",
+            "Cảm ơn bạn đã đồng hành cùng chúng tớ. Chúc bạn một ngày 8/3 ngọt ngào như chính con người bạn vậy!",
+            "Mong bạn luôn nhận được sự trân trọng và yêu thương mà bạn xứng đáng có được mỗi ngày.",
+            "Chúc bạn tỏa sáng rực rỡ theo cách của riêng mình, dù ở bất cứ nơi đâu bạn cũng là bông hoa đẹp nhất.",
+            "Mỗi nụ cười của bạn là nguồn năng lượng tích cực cho cả lớp. Hãy cứ mỉm cười thật nhiều bạn nhé!",
+            "Chúc bạn luôn tìm thấy niềm vui trong những điều nhỏ bé nhất và giữ mãi tâm hồn thuần khiết.",
+            "Bạn mạnh mẽ hơn bạn tưởng, thông minh hơn bạn thấy và xinh đẹp hơn bạn biết. Tự tin lên nhé!",
+            "Chúc bạn có một ngày 8/3 thật ý nghĩa bên gia đình và những người thân yêu nhất.",
+            "Mong mọi điều tốt đẹp nhất sẽ đến với bạn, không chỉ trong ngày hôm nay mà là suốt cả cuộc đời.",
+            "Cảm ơn vì đã là một mảnh ghép của 11A1. Chúc bạn luôn bình yên và yêu đời mỗi ngày.",
+            "Chúc bạn xinh đẹp không chỉ ở vẻ ngoài mà còn ở tâm hồn luôn tràn đầy lòng nhân hậu và sự thấu hiểu.",
+            "Hãy cứ là chính mình, vì phiên bản của bạn là duy nhất và đáng trân trọng nhất trên thế giới này.",
+            "Chúc bạn luôn mạnh khỏe, học tập tốt và luôn là niềm tự hào của gia đình và lớp chúng ta.",
+            "Mong trái tim bạn luôn ấm áp, đôi mắt luôn ngời sáng và đôi chân luôn vững bước trên con đường đã chọn.",
+            "Chúc bạn tìm thấy được người sẽ trân trọng mọi giá trị của bạn như cách chúng tớ trân trọng bạn vậy.",
+            "Bạn là một cô gái tuyệt vời với những nét cá tính riêng biệt. Chúc bạn luôn giữ vững bản sắc đó!",
+            "Chúc bạn ngày càng trưởng thành, bản lĩnh nhưng vẫn giữ được sự dịu dàng đặc trưng của con gái 11A1.",
+            "Mong những nỗi buồn của bạn sẽ tan biến và thay vào đó là hàng ngàn lý do để mỉm cười mỗi ngày.",
+            "Chúc bạn có một ngày Quốc tế Phụ nữ tràn đầy hoa, quà và những lời nói ấm áp nhất.",
+            "Bạn xứng đáng với tất cả những điều tốt đẹp nhất trên thế giới này. Hãy tận hưởng ngày của mình nhé!",
+            "Gửi đến bạn - bông hoa xinh đẹp nhất của 11A1 - ngàn lời chúc hạnh phúc và may mắn nhất!"
+        ];
+
+        function openDoors() {
+            const door = document.getElementById('doorContainer');
+            door.classList.add('open');
+            // Cài đặt lời chúc ngẫu nhiên ngay khi mở cửa để khi lật thiệp là thấy luôn
+            setRandomWish();
+            setInterval(createParticle, 300);
+        }
+
+        function setRandomWish() {
+            const content = document.getElementById('wishContent');
+            const randomIndex = Math.floor(Math.random() * wishes.length);
+            content.innerText = `"${wishes[randomIndex]}"`;
+        }
+
+        function flipCard() {
+            const card = document.getElementById('card');
+            card.classList.toggle('is-flipped');
+            // Nếu lật lại mặt trước thì đổi lời chúc mới cho lần sau
+            if (!card.classList.contains('is-flipped')) {
+                setTimeout(setRandomWish, 600);
+            }
+        }
+
+        function createParticle() {
+            const emojis = ['🌸', '✨', '❤️', '💖', '🎀', '🎈', '🍫'];
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.top = '-20px';
+            p.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            document.body.appendChild(p);
+
+            const duration = Math.random() * 3000 + 2000;
+            const anim = p.animate([
+                { top: '-20px', transform: 'rotate(0deg)', opacity: 1 },
+                { top: '110vh', transform: `translateX(${(Math.random() - 0.5) * 200}px) rotate(360deg)`, opacity: 0 }
+            ], {
+                duration: duration,
+                easing: 'linear'
+            });
+
+            anim.onfinish = () => p.remove();
+        }
+
+        window.onload = () => {
+            for(let i=0; i<20; i++) {
+                setTimeout(createParticle, i * 100);
+            }
+        };
+    </script>
+</body>
+</html>
